@@ -1,11 +1,22 @@
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework import mixins, status
+from rest_framework.viewsets import (
+    GenericViewSet,
+    ModelViewSet,
+)
+from rest_framework import (
+    mixins,
+    status,
+)
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from cinema.models import Actor, Genre, CinemaHall, Movie
+from cinema.models import (
+    Actor,
+    Genre,
+    CinemaHall,
+    Movie,
+)
 from cinema.serializers import (
     ActorSerializer,
     GenreSerializer,
