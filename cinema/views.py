@@ -13,13 +13,8 @@ from cinema.serializers import (
 )
 
 
-class GenreAPIView(APIView):
-    def get(self, request, pk=None):
-        if pk:
-            genre = Genre.objects.get(pk=pk)
-            serializer = GenreSerializer(genre)
-            return Response(serializer.data)
-
+class GenreList(APIView):
+    def get(self, request):
         genres = Genre.objects.all()
         serializer = GenreSerializer(genres, many=True)
         return Response(serializer.data)
@@ -30,36 +25,41 @@ class GenreAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
+class GenreDetail(APIView):
+    def get_object(self, pk):
+        return Genre.objects.get(pk=pk)
+
+    def get(self, request, pk):
+        genre = self.get_object(pk)
+        serializer = GenreSerializer(genre)
+        return Response(serializer.data)
+
     def put(self, request, pk):
-        genre = Genre.objects.get(pk=pk)
+        genre = self.get_object(pk)
         serializer = GenreSerializer(genre, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def patch(self, request, pk):
-        genre = Genre.objects.get(pk=pk)
+        genre = self.get_object(pk)
         serializer = GenreSerializer(genre, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def delete(self, request, pk):
-        genre = Genre.objects.get(pk=pk)
+        genre = self.get_object(pk)
         genre.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ActorAPIView(GenericAPIView):
+class ActorList(GenericAPIView):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
 
-    def get(self, request, pk=None):
-        if pk:
-            actor = self.get_object()
-            serializer = self.get_serializer(actor)
-            return Response(serializer.data)
-
+    def get(self, request):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response(serializer.data)
 
@@ -68,6 +68,17 @@ class ActorAPIView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+class ActorDetail(GenericAPIView):
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
+
+    def get(self, request, pk):
+        actor = self.get_object()
+        serializer = self.get_serializer(actor)
+        return Response(serializer.data)
 
     def put(self, request, pk):
         actor = self.get_object()
@@ -78,8 +89,7 @@ class ActorAPIView(GenericAPIView):
 
     def patch(self, request, pk):
         actor = self.get_object()
-        serializer = self.get_serializer(actor,
-                                         data=request.data, partial=True)
+        serializer = self.get_serializer(actor, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
